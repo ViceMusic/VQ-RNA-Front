@@ -1,0 +1,25 @@
+.block-container{
+    height: auto;
+    min-height: 100px;
+    width: 70vw;
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px 20px rgba(0,0,0,0.1);
+    margin: 10px;
+    padding: 10px;
+    position: relative;
+}
+.block-header{
+    position: absolute;
+    left:0px;
+    width: 80%;
+    background-color: #2e294e;
+    padding: 5px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+}
+.placeholder{
+    height: 50px;
+}
