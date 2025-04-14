@@ -5,12 +5,12 @@ import Reference from "./pages/Reference";
 import About from "./pages/About";
 
 const router = [
-    {"path": "/", "component": <Home/>},
-    {"path": "/home", "component": <Home/>},
-    {"path": "/usage", "component": <Usage/>},
-    {"path": "/tasks", "component": <Tasks/>},
-    {"path": "/reference", "component": <Reference/>},
-    {"path": "/about", "component": <About/>},
+    {"path": "", "component": <Home/>},
+    {"path": "home", "component": <Home/>},
+    {"path": "usage", "component": <Usage/>},
+    {"path": "tasks", "component": <Tasks/>},
+    {"path": "reference", "component": <Reference/>},
+    {"path": "about", "component": <About/>},
  
 ]
 

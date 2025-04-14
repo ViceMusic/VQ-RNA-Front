@@ -111,16 +111,7 @@
         opacity: 1; /* 最终透明度为 1 */
     }
 }
-#threejs-container {
-    width: 400px;
-    height: 400px;
-    margin: 10px;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
-    transform: scale(0); /* 初始状态：缩小到 0 */
-    transform-origin: center; /* 从中心开始扩展 */
-    animation: scaleUp 1s ease-in-out forwards; /* 动画效果 */
-}
+
 @keyframes scaleUp {
     0% {
         transform: scale(0); /* 缩小到 0 */
@@ -215,7 +206,7 @@ img{
     left: 0;
     width: 10px;
     height: 2px;
-    background: rgb(118, 0, 173); /* 光点颜色 */
+    background: #7600ad; /* 光点颜色 */
     border-radius: 40%; /* 圆形光点 */
     box-shadow: 0 0 10px 5px rgba(118, 0, 173, 0.8); /* 光点发光效果 */
     animation: move 3s linear infinite; /* 动画 */
@@ -230,3 +221,232 @@ img{
       left: 100%;
     }
   }
+
+
+
+/* 关于新增的原型内容 */
+
+#threejs-container {
+    width: 400px;
+    height: 400px;
+    perspective: 1000px;
+    margin: 50px auto;
+  }
+
+  .sphere {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: rotate 10s infinite linear;
+  }
+
+  .circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #4B5267;
+    border-radius: 50%;
+    opacity: 0.8;
+  }
+
+  /* 经线（纵向环） */
+  .meridian {
+    transform: rotateY(90deg);
+  }
+
+  /* 纬线（横向环） */
+  .parallel {
+    transform: rotateX(90deg);
+  }
+
+  /* 斜向环 */
+  .diagonal {
+    transform: rotateX(45deg) rotateY(45deg);
+  }
+
+  @keyframes rotate {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+  }
+
+  /* 创建12条经线和12条纬线 */
+  .circle:nth-child(1) { transform: rotateY(0deg); }
+  .circle:nth-child(2) { transform: rotateY(30deg); }
+  .circle:nth-child(3) { transform: rotateY(60deg); }
+  .circle:nth-child(4) { transform: rotateY(90deg); }
+  .circle:nth-child(5) { transform: rotateY(120deg); }
+  .circle:nth-child(6) { transform: rotateY(150deg); }
+  .circle:nth-child(7) { transform: rotateX(0deg); }
+  .circle:nth-child(8) { transform: rotateX(30deg); }
+  .circle:nth-child(9) { transform: rotateX(60deg); }
+  .circle:nth-child(10) { transform: rotateX(90deg); }
+  .circle:nth-child(11) { transform: rotateX(120deg); }
+  .circle:nth-child(12) { transform: rotateX(150deg); }
+
+
+
+
+
+  .unUse {
+    opacity: 0.6;
+  }
+
+
+  /* 上传容器 */
+  .upload-container {
+    width: 300px;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  /* 自定义上传按钮 */
+  .custom-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  /* 隐藏原生input */
+  .custom-upload input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  /* 可视化的按钮 */
+  .upload-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #4285f4;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s;
+  }
+
+  .upload-btn:hover {
+    background: #3367d6;
+    transform: translateY(-2px);
+  }
+
+  /* 文件信息区域 */
+  .file-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    text-align: left;
+  }
+
+  .file-name {
+    font-weight: bold;
+    color: #333;
+    word-break: break-all;
+  }
+
+  .file-size {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+  }
+
+  /* 图片预览 */
+  .preview-container {
+    margin-top: 20px;
+    max-width: 100%;
+  }
+
+  .preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+
+  /*css动画效果: 延缓浮现*/
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* 应用动画到任意div */
+  .fade-in {
+    animation: fadeIn 1.5s ease-in forwards;
+  }
+
+
+
+
+  /* 基础背景样式 */
+.magic-background {
+  position: relative;
+}
+
+/* 紫色半圆元素 */
+.magic-background::before {
+  content: '';
+  position: absolute;
+  left: -550px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1400px;
+  height: 1400px;
+  background: rgba(138, 43, 226, 0.3); /* 半透明紫色 */
+  border-radius: 50%;
+}
+
+/* 星环元素 */
+.magic-background::after {
+  content: '';
+  position: absolute;
+  left: -250px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1800px;
+  height: 1800px;
+  border: 10px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  border-top-color: rgba(138, 43, 226, 0.8);
+  animation: 
+    rotate1 24s linear infinite,
+    fadeIn 1s ease-out forwards;
+}
+
+/* 动画定义 */
+@keyframes slideIn {
+  from { left: -300px; }
+  to { left: -150px; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.05); }
+}
+
+@keyframes rotate1 {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+
+

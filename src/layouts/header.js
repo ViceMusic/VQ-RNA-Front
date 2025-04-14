@@ -9,30 +9,37 @@ import './layout.css';
 import { SettingOutlined,HomeOutlined,AppstoreOutlined,CloudServerOutlined,FileSearchOutlined,ContactsOutlined } from '@ant-design/icons';
 import { use, useState,useEffect } from 'react';
 import { Dropdown } from 'antd';
+import { Navigate } from 'react-router-dom';
+import ws from '../tools/websocketHub';
+import state from '../tools/state';
+
+
 
 //用户登入登出的下拉菜单
-const items = [
-  {
-    key: '1',
-    label: (
-      <div style={{fontSize:"14px",width:"100px"}}>
-        Personal Info
-      </div>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <div style={{fontSize:"14px",width:"100px"}}>
-        Log Out 
-      </div>
-    ),
-  },
-];
+
 
 function Header() {
+  
   const [isHovered, setIsHovered] = useState(false);
-  const navi=useNavigate();
+  const navi=useNavigate(); // 使用 useNavigate 钩子来获取导航函数
+  const items = [
+    {
+      key: '1',
+      label: (
+        <div style={{fontSize:"14px",width:"100px"}} onClick={()=>{alert("user:"+state.getUser())}}>
+          Personal Info
+        </div>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <div style={{fontSize:"14px",width:"100px"}} onClick={()=>{state.logout();navi("/login")}}>
+          Log Out 
+        </div>
+      ),
+    },
+  ];
   useEffect(()=>{
   },[])
   return (
@@ -46,10 +53,13 @@ function Header() {
                         fontSize: '20px',
                         alignItems: 'center',
                     }}>
-                <div  style={{fontWeight:"bold",fontSize:"30px"}}  onClick={()=>navi("/")}>VQ-RNA</div>
+                <div  style={{fontWeight:"bold",fontSize:"30px"}}  >VQ-RNA</div>
                 <div  onClick={()=>navi("/home")} ><HomeOutlined style={{padding:"3px"}}/>Home</div>
                 <div  onClick={()=>navi("/usage")} ><AppstoreOutlined style={{padding:"3px"}}/>Usage</div>
-                <div  onClick={()=>navi("/tasks")}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
+                <div  onClick={()=>{
+                    navi("/tasks"); //先跳转到对应位置
+                    ws.send({email:state.getUser(),type:"user_tasks"}); //获取该用户的所有任务
+                    }}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
                 <div  onClick={()=>navi("/reference")}><FileSearchOutlined style={{padding:"3px"}}/>Reference</div>
                 <div  onClick={()=>navi("/about")}><ContactsOutlined style={{padding:"3px"}}/>About</div>
             </div>
