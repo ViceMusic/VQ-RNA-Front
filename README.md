@@ -9,3 +9,17 @@ This enhancement is expected to improve motif recognition accuracy, as it has be
 to be more reliable when based on multiple sequences. Additionally,
 we will also incorporate a TF-IDF-based RNA modification specificity analysis,
 providing a clear and quantitative visualization of the distinctions among different RNA modification types.
+
+好的, 下面是关于文档项目的一点解析
+
+首先, 主分支main是当前的运行版本, 但是由于某些不可名状的原因, 我们选用websocket来替代http协议进行通信, 这一灵感来自于某个码农在公司项目中借鉴的技术点.
+
+很有意思, 用ws部署成异步任务就可以防止很多事情了, 可以让任务交给后端进行调度即可
+
+但是这样遇到的问题就是很难实现高效而双向的交互()
+
+因此main分支使用state.js手动管理全局状态, 这就导致组件可能渲染不及时
+
+所以我把刷新的功能让用户手动实现(:D)
+
+其次, dev分支是开发目录, 在这里首先进行的一个尝试就是将state修改成全局状态
