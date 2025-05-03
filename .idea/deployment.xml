@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="vq-rna" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="vq-rna">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/VQRNA" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

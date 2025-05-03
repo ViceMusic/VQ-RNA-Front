@@ -4,7 +4,6 @@ import Header from './layouts/header';
 import Footer from './layouts/footer';
 import { BrowserRouter, Routes, Route, Link, useNavigate,HashRouter, Outlet, Navigate } from 'react-router-dom';
 import { createContext, useContext, useState } from 'react';
-import ws from './tools/websocketHub';
 
 import Login from './pages/Login';
 

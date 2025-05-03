@@ -1,4 +1,4 @@
-import ws from './websocketHub.js' // Import the WebSocket instance
+import simplePost from "./httpHub";
 
 class State{
     user = null // private property to hold the state
@@ -13,11 +13,18 @@ class State{
         }
     }
     login = (vq_user) => {
-        localStorage.setItem('vq-user', vq_user);
-        localStorage.setItem('isLogged', JSON.stringify(true));
-        this.user=vq_user
-        this.isLogged=true
-        ws.send({email:vq_user,type:"login"}); //登录成功以后, 发送请求获取该用户的所有任务
+        console.log(simplePost({email:vq_user,type:"login"}).then((res)=>{
+                console.log("登录成功",res)
+                localStorage.setItem('vq-user', vq_user);
+                localStorage.setItem('isLogged', JSON.stringify(true));
+                this.user=vq_user
+                this.isLogged=true
+            }
+            ).catch((err)=>{
+                console.log("登录失败",err)
+            })
+        )
+
     };
     logout = () => {
         //退出登录以后, 要删除掉对应的内容

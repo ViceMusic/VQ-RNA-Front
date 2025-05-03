@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="aec82144-09df-4550-96b5-b1ec00385086" name="vq-rna">
+        <fileTransfer rootFolder="/mnt/data/front_project" accessType="SFTP" host="120.24.47.30" port="22" sshConfigId="ea973cb5-2aaf-4ffe-a0a1-c62da4ebc386" sshConfig="root@120.24.47.30:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

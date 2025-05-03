@@ -115,7 +115,9 @@ class SimpleWebSocket {
 
 console.log('websocketHub.js: 连接已建立')
 
-const ws = new SimpleWebSocket('ws://8.130.10.95:8080');
+//const ws = new SimpleWebSocket('wss://8.130.10.95:8080');
+
+const ws={}
 
 
 export default ws; //抛出链接对象

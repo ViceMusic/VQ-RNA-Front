@@ -124,7 +124,7 @@ function Home1() {
                             we will also incorporate a TF-IDF-based RNA modification specificity analysis,
                             providing a clear and quantitative visualization of the distinctions among different RNA modification types.
                         </p>
-                        <button class="info-button" onclick="window.location.href='http://8.130.10.95:8000/usage'">
+                        <button class="info-button" >
                             GET START 
                         </button>
                     </div>

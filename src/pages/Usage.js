@@ -7,7 +7,6 @@ import { InboxOutlined } from '@ant-design/icons';
 import { Input, message, Upload } from 'antd';
 import { Checkbox } from 'antd';
 import { useState } from "react";
-import ws from "../tools/websocketHub";
 import state from "../tools/state";
 const { Dragger } = Upload;
 
@@ -109,22 +108,43 @@ function Usage() {
   const handleChange = (e) => {
     setSeq(e.target.value);
   };
+
   //管理提交方式:
   const submitSingle=()=>{
-    ws.send({
+    const temp={
       type:"seq",
       body:seq,
       email:state.getUser(),
+    }
+    fetch('http://8.130.10.95:8080/api/req', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(temp)  // 转换为 JSON 字符串
     })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 
   }
   const submitFasta=()=>{
     console.log("上传的文件",base64String);
-    ws.send({
+    const temp={
       type:"file",
       body:base64String.split(',')[1], // "ABC123...",
       email:state.getUser(),
+    }
+    fetch('https://inner.wei-group.net/vqrna/api/req', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(temp)  // 转换为 JSON 字符串
     })
+    .catch(error => {
+      console.error('Error:', error);
+    });
     
   }
   const submit=()=>{
@@ -182,7 +202,7 @@ function Usage() {
               </div>
             </div>
           </Block>
-          <Block title="Select desc type" >
+          <Block title="Select motify type" >
             <div style={{display:"flex", flexDirection:"column",justifyContent:"center", alignItems:"center",width:"100%", height:"100%"}}>
               <div style={{margin:"10px 0"}}>
                 {des_list.map((item,index)=><Checkbox checked={eval('des'+index)} disabled={display} style={{fontSize:"16px", fontWeight:"bold",margin:"0 10px"}} onChange={()=>select(index)}>{item}</Checkbox>)}

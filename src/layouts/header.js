@@ -10,7 +10,6 @@ import { SettingOutlined,HomeOutlined,AppstoreOutlined,CloudServerOutlined,FileS
 import { use, useState,useEffect } from 'react';
 import { Dropdown } from 'antd';
 import { Navigate } from 'react-router-dom';
-import ws from '../tools/websocketHub';
 import state from '../tools/state';
 
 
@@ -54,14 +53,11 @@ function Header() {
                         alignItems: 'center',
                     }}>
                 <div  style={{fontWeight:"bold",fontSize:"30px"}}  >VQ-RNA</div>
-                <div  onClick={()=>navi("/home")} ><HomeOutlined style={{padding:"3px"}}/>Home</div>
-                <div  onClick={()=>navi("/usage")} ><AppstoreOutlined style={{padding:"3px"}}/>Usage</div>
-                <div  onClick={()=>{
-                    navi("/tasks"); //先跳转到对应位置
-                    ws.send({email:state.getUser(),type:"user_tasks"}); //获取该用户的所有任务
-                    }}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
-                <div  onClick={()=>navi("/reference")}><FileSearchOutlined style={{padding:"3px"}}/>Reference</div>
-                <div  onClick={()=>navi("/about")}><ContactsOutlined style={{padding:"3px"}}/>About</div>
+                <div  onClick={()=>navi("/home")}  style={{marginLeft:"20px"}}><HomeOutlined style={{padding:"3px"}}/>Home</div>
+                <div  onClick={()=>navi("/usage")} style={{marginLeft:"20px"}}><AppstoreOutlined style={{padding:"3px"}}/>Usage</div>
+                <div  onClick={()=>{navi("/tasks"); }} style={{marginLeft:"20px"}}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
+                <div  onClick={()=>navi("/reference")} style={{marginLeft:"20px"}}><FileSearchOutlined style={{padding:"3px"}}/>Reference</div>
+                <div  onClick={()=>navi("/about")} style={{marginLeft:"20px"}}><ContactsOutlined style={{padding:"3px"}}/>About</div>
             </div>
             {/*右侧的用户登录信息以及界面*/}
             <div id="author" style={{display: 'flex',paddingRight: '20px',fontSize: '30px',alignItems: 'center',cursor: 'pointer'}}>

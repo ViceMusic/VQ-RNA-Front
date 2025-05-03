@@ -8,7 +8,6 @@ import { Margin, Padding } from "@mui/icons-material";
 import { color } from "three/tsl";
 
 import state from "../tools/state";
-import ws from "../tools/websocketHub";
 const { Panel } = Collapse;
 
 //下面
@@ -359,8 +358,24 @@ function Tasks() {
           <button 
             style={{margin:"10px",height:"50px",width:"400px",borderRadius:"5px", border:"none",backgroundColor:"#4CAF50",color:"white",fontSize:"20px",fontWeight:"bold"}}
             onClick={()=>{
-              ws.send({email:state.getUser(),type:"user_tasks"});
-              setTasks(state.data.tasks?[...state.data.tasks]:[])}}> 
+                fetch('https://inner.wei-group.net/vqrna/api/req', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({type:"user_tasks", email:state.getUser()})  // 转换为 JSON 字符串
+                })
+                .then(response => response.text())  // 获取响应体
+                .then(data=>{
+                  console.log(JSON.parse(data).tasks)
+                  setTasks(JSON.parse(data).tasks);
+                })  // 获取响应体
+                .catch(error => {
+                  console.error('Error:', error);
+                });
+              
+              
+              }}> 
               Click This To Get My Tasks
           </button>
           <Block title="Tasks">

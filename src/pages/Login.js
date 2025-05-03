@@ -1,8 +1,8 @@
 import React from "react";
 import { useState,useEffect } from "react";   
-import ws from "../tools/websocketHub";
 import { useNavigate } from "react-router-dom";
 import state from "../tools/state";
+import simplePost from "../tools/httpHub";
 
 function Login() {
 
@@ -37,6 +37,8 @@ function Login() {
                 if(inputValue!==""){
                   state.login(inputValue); 
                   navi("/")
+                  
+                  
                 }else{
                   alert("Please Input you Email")
                 }
