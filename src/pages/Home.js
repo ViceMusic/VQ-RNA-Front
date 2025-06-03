@@ -6,8 +6,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import "./pages.css";
 import { ExperimentOutlined,BulbOutlined,DeploymentUnitOutlined,PieChartFilled,SlidersFilled } from '@ant-design/icons';
 import { red } from "@mui/material/colors";
+import { useNavigate } from 'react-router-dom';
 
 function Home1() {
+   const navi=useNavigate(); // 使用 useNavigate 钩子来获取导航函数
    useEffect(()=>{
     
    },[])
@@ -16,38 +18,29 @@ function Home1() {
 
                   <div style={{display: "flex", justifyContent: "center",alignItems: "center",backgroundColor: "#BE97C6",height: "90vh",width: "100vw"}}>
                     <div className="item item1">
-                      <div className="item-flex">
 
+                      <div className="item-flex">
                           <div>
                               <h3> · Intuitive Visualization: </h3>
                               <p> Support for the visualization of prediction performance across 10 common RNA modification types.</p>
                           </div>
                           <ExperimentOutlined className="icon-item" style={{color:"#403D58"}}/>
-                          
-
                       </div>
 
                       <div className="item-flex">
-
                           <div>
                             <h3>· Advanced Deep Learning Methods: </h3>
                               <p>  Multi-layer convolutional neural networks, VQ-VAE, Transformer, and more.</p>
                           </div>
                           <BulbOutlined className="icon-item" style={{color:"#F2EFEA"}}/>
-                          
-
                       </div>
 
                       <div className="item-flex">
-
                           <div>
                               <h3> · Biologically meaningful interpretability:</h3>
                               <p>  VQ-RNA can identify informative motif patterns and construct an interpretable feature spectrum for each type of RNA modification.</p>
                           </div>
                           <DeploymentUnitOutlined className="icon-item" style={{color:"#FC7753"}}/>
-
-                          
-
                       </div>
 
 
@@ -79,7 +72,7 @@ function Home1() {
                             </div>
                         </div>
                         <div style={{fontSize: "48px"}} id="vq-rna">VQ-RNA</div>
-                        <button className="info-button" style={{fontSize: "24px"}} onClick={()=>{window.location.href="/usage"}}>
+                        <button className="info-button" style={{fontSize: "24px"}} onClick={()=>{navi("/usage"); }}>
                             GET START 
                         </button>
                     </div>
@@ -124,7 +117,7 @@ function Home1() {
                             we will also incorporate a TF-IDF-based RNA modification specificity analysis,
                             providing a clear and quantitative visualization of the distinctions among different RNA modification types.
                         </p>
-                        <button class="info-button" >
+                        <button class="info-button"  onClick={()=>{navi("/usage"); }}>
                             GET START 
                         </button>
                     </div>

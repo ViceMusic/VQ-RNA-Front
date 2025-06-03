@@ -8,7 +8,9 @@ import { Input, message, Upload } from 'antd';
 import { Checkbox } from 'antd';
 import { useState } from "react";
 import state from "../tools/state";
+import { useRef } from "react";
 const { Dragger } = Upload;
+
 
 
 //文件的上传逻辑都写到这里了, 这个是一个antd封装好的方法, 具体查看ai或者文档
@@ -56,8 +58,12 @@ function Usage() {
   const [des9,setDes9]=useState(0);
   const [display,setDisplay]=useState(false);
   const [email,setEmail]=useState("");
-  // 获取所有的修饰类型, 但是这个方法是异步方法, 不能和其他的修改方法一同使用
-  // 关于类型获取暂时先不管了, 差不多就这些东西
+
+  // 这个是关于email的内容
+  const [inputValue, setInputValue] = useState(""); // 定义一个状态变量 inputValue 和对应的更新函数 setInputValue
+  const handle = (e) => {
+      setInputValue(e.target.value);
+    };
 
   //选择某种模式作为提交方案
   const [subModel,setSubModel]=useState(0); //0代表选择左侧的单序列提交, 1代表选择右侧的多序列提交
@@ -160,6 +166,34 @@ function Usage() {
     }
 
   }
+
+  const checkFormat=()=>{
+    if (!seq) {
+      alert("please input your sequence");
+      return false;
+    }
+
+    // 去除空格和换行
+    const cleanSeq = seq.replace(/\s+/g, '').toUpperCase();
+
+    // 长度检查
+    if (cleanSeq.length < 51) {
+      alert("The sequence must be at least 51 characters long");
+      return false;
+    }
+
+    // 字符检查：只能包含 A、C、T、G
+    if (!/^[ACTG]+$/.test(cleanSeq)) {
+      alert("The sequence can only contain the characters A, C, T, and G");
+      return false;
+    }
+
+    alert("Sequence format is correct!");
+    return true;
+
+
+  }
+
     return (
       <div className="page" >
           <Block title="Input target sequences" icon={<TagFilled style={{color:"white",fontSize:"20px",margin:5}}/>}>
@@ -167,7 +201,7 @@ function Usage() {
               <div style={input_block} className={subModel==1?"unUse":""}
               onClick={()=>setSubModel(0)} >
                 <div style={{fontSize:"20px",margin:"5px 0"}}>Enter the sequence with FASTA format:</div>
-                <textarea style={{width:"100%", height:"100px", fontSize:"15px", padding:10}} onChange={handleChange}></textarea>
+                <textarea style={{width:"100%", height:"100px", fontSize:"15px", padding:10}} onChange={handleChange} value={seq}></textarea>
                 <div style={{fontSize:"12px",margin:"5px 0", fontWeight:"bold"}}>
                   Please input and ensure one sequence with the same format as example data (If you want display your result in 3Dmol, 
                   please give PDB id and chain id and use 'yes' or 'no' after '-' to tell whether your title have PDB id and chain id, such as 
@@ -176,9 +210,9 @@ function Usage() {
                   otherwise the task would fail
                 </div>
                 <div>
-                  <button style={{margin:10, border:"none", padding:"5px", backgroundColor:"#FFA500", fontSize:"20px", color:"white", borderRadius:"5px"}}>Upload file</button>
-                  <button style={{margin:10, border:"none", padding:"5px", backgroundColor:"transparent", fontSize:"20px", borderBottom:"solid 1px"}}>example</button>
-                  <button style={{margin:10, border:"none", padding:"5px", fontSize:"20px", borderRadius:"5px"}}> Check Format</button>
+                  {/*两个按钮, 分别是这个和哪个, 检查和更新seq的内容*/}
+                  <button style={{margin:10, border:"none", padding:"5px", backgroundColor:"#FFA500", fontSize:"20px", color:"white", borderRadius:"5px"}} onClick={()=>{checkFormat()}}>Check Format</button>
+                  <button  style={{margin:10, border:"none", padding:"5px", backgroundColor:"transparent", fontSize:"20px", borderBottom:"solid 1px"}} onClick={(e)=>{setSeq("ACTGTCATGACTAGCATGACTAGCATGATCATGACTACGATCAACTGTCATGACTAGCATGACTAGCATGATCATGACTACGATCA");console.log(seq)}}>example</button>
                 </div>
               </div>
               <div style={input_block2} className={subModel==0?"unUse":""} onClick={()=>{setSubModel(1);}}>
@@ -219,7 +253,7 @@ function Usage() {
           </Block>
           <Block title="Submission">
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-              <Input placeholder="Input your email" onChange={(e)=>{setEmail(e.currentTarget.defaultValue);console.log(e.currentTarget.defaultValue)}} style={{width:"100%", height:"50px", fontSize:"10px", margin:"10px 0"}}/>
+              <input placeholder="Input your email" onChange={handle} style={{width:"100%", height:"50px", fontSize:"20px", margin:"10px", border:"solid gray 1px", paddingLeft:"10px", borderRadius:"10px",color:" rgba(0, 0, 0, 0.9)"}}/>
               <button style={{backgroundColor:"#FFA500", height:"30px", width:"90px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}} onClick={()=>submit()}>submit</button>
                
             </div>
