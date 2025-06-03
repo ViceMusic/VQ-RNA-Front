@@ -122,7 +122,7 @@ function Usage() {
       body:seq,
       email:state.getUser(),
     }
-    fetch('http://8.130.10.95:8080/api/req', {
+    fetch('https://inner.wei-group.net/vqrna/api/req', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
