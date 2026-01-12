@@ -6,350 +6,134 @@ import { Collapse } from 'antd';
 import { type } from "@testing-library/user-event/dist/type";
 import { Margin, Padding } from "@mui/icons-material";
 import { color } from "three/tsl";
-
+import {RequestObjectBuilder} from "../tools/Request"
+import { RequestClient } from "../tools/Http";
 import state from "../tools/state";
+import { useToast } from "../App";
+import { server_path } from "../configure";
 const { Panel } = Collapse;
+const des_list=["Am", "Cm", "Gm", "Um", "m1A", "m5C", "m5U", "m6A", "m6Am", "Ψ"]
+const RequestBuilder=new RequestObjectBuilder();   //生成请求构建对象
+const client=new RequestClient(server_path) //生成对应的链接对象
 
-//下面
-const warning={
-  backgroundColor:"red",
-  fontSize:"10px",
-  fontWeight:"bold",
-  padding:"2px",
-  color:"white",
-  fontWeight:"bold",
-  width:"50px",
-  textAlign:"center",
-  borderRadius:"5px",
-  margin:" 0 20px"
-}
-const waiting={
-  backgroundColor:"#FFA500",
-  fontSize:"10px",
-  fontWeight:"bold",
-  padding:"2px",
-  color:"white",
-  fontWeight:"bold",
-  width:"50px",
-  textAlign:"center",
-  borderRadius:"5px",
-  margin:" 0 20px"
-}
-const finished={  
-  backgroundColor:"green",
-  fontSize:"10px",
-  fontWeight:"bold",
-  padding:"2px",
-  color:"white",
-  fontWeight:"bold",
-  width:"50px",
-  textAlign:"center",
-  borderRadius:"5px",
-  margin:" 0 20px"
-}
-const type_map={
-  "error":warning,
-  "in_progress":waiting,
-  "completed":finished
-}
-
-//传进来的是一个
-const MethylationDisplay = (props) => {
-  const data=props.data;
-  const content=JSON.parse(data.content==" "?JSON.stringify({}):data.content);
-  const startTime=data.startTime;
-  const taskstate=data.state;
-  const taskId=data.taskid;  
-
-  //content的内部信息
-  const type=content.type;
-  const seqs=type==="mutil" ? content.seqs : [content.seqs]; // 处理单一或者多序列的情况
-  const image=content.image; // 图片的链接
-  const meth=content.meth; // 甲基化的类型
-  const details=type==="mutil" ? content.detail:[eval(content.detail)]; // 甲基化的详细信息
-  // 根据传入信息查看序列
-  const base=["Am", "Cm", "Gm", "Um", "m1A", "m5C", "m5U", "m6A", "m6Am", "Ψ"];
-  // 根据甲基化类型, 以及详细信息进行标红
-  const markMethylatedPositions = (sequence,detail) => {
-    let point=0;
-    return sequence.split('').map((base, index) => {
-      try{
-        
-        if(detail && detail.length>0 && detail[0] && detail[point] && index==detail[point][0]){
-          point++;
-          return  <span style={{color: "red",fontWeight: "bold"}}>{base}</span>
-        }
-        else 
-              return base;
-
-      }catch(e){
-        console.log("查看任务出错",e)
-      }
-      
-    });
-  };
-
-  return (
-    <div style={{
-      fontFamily: 'Arial, sans-serif',
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: '20px',
-      backgroundColor: '#f9f9f9',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-    }}>
-        {content.message=="OK" ?
-        //数据顺利
-        <>
-                {/* 第一行：任务信息 */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '20px',
-                paddingBottom: '10px',
-                borderBottom: '1px solid #ddd'
-              }}>
-                <span>Task Start Time: {startTime}</span>
-                <span>Task ID: {taskId}</span>
-                <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>State: {taskstate}</span>
-              </div>
-
-              {/* 甲基化序列展示 */}
-              <div style={{
-                marginBottom: '20px',
-                padding: '15px',
-                backgroundColor: '#fff',
-                borderRadius: '5px',
-                border: '1px solid #eee',
-                lineHeight: '1.6',
-                wordBreak: 'break-all',
-                fontSize: '14px',
-                overflow:"auto",
-                height:"180px",
-                backgroundColor:"#E9E9E9",
-              }}>
-                {seqs.map((seq, index) => (
-                  <div key={index} style={{ marginBottom: '10px' , overflow:"auto",height:"100px",border:"1px solid #ddd",borderRadius:"5px",backgroundColor:"#fff"}}>
-                    <strong>Sequence {index + 1}:</strong>
-                    <div >{markMethylatedPositions(seq,details[index])}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* 甲基化数据表格 */}
-              <div style={{
-                display: 'flex',
-                gap: '20px',
-                marginBottom: '20px'
-              }}>
-                <div style={{
-                  flex: '1',
-                  maxHeight: '300px',
-                  overflowY: 'auto',
-                  border: '1px solid #ddd',
-                  borderRadius: '5px'
-                }}>
-                  <table style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    fontSize: '14px'
+const text="测试"
+// 输入参数为task的读取代码内容
+const convert_tasks_to_items=(tasks)=>{
+    let results=[]
+    console.log("其任务为：",tasks)
+    try {
+      results=tasks.map(task=>{
+      return {
+        key:task.taskID,
+        label:task.timestamp ? new Date(Number(task.timestamp)).toLocaleString() : '?',
+       children: <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '20px', 
+                    padding: '10px' 
                   }}>
-                    <thead style={{
-                      position: 'sticky',
-                      top: '0',
-                      backgroundColor: '#4CAF50',
-                      color: 'white'
-                    }}>
-                      <tr>
-                        <th style={{ padding: '10px', textAlign: 'left' }}>seq_index</th>
-                        <th style={{ padding: '10px', textAlign: 'left' }}>site</th>
-                        <th style={{ padding: '10px', textAlign: 'left' }}>location</th>
-                        <th style={{ padding: '10px', textAlign: 'left' }}>type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        details.map((detail,index)=>
-                          detail.map((row) => (
-                            <tr key={row.id} style={{
-                              borderBottom: '1px solid #ddd',
-                              backgroundColor: row.id % 2 === 0 ? '#f9f9f9' : 'white'
-                            }}>
-                              <td style={{ padding: '10px' }}>{index}</td>
-                              <td style={{ padding: '10px' }}>{row[2]}</td>
-                              <td style={{ padding: '10px' }}>{row[0]}</td>
-                              <td style={{ padding: '10px', color: '#2196F3' }}>{base[row[1]-1]}</td>
-                            </tr>
+                      {task.results?.map((result, index) => (
+                        <div 
+                          key={index} 
+                          style={{ 
+                            height: '400px',           // 适中的固定高度
+                            overflowY: 'auto',         // 内部上下滚动
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: '12px',      // 圆框效果
+                            padding: '16px', 
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.05)', // 轻微阴影提升质感
+                            backgroundColor: '#fff',
+                            fontSize: 12
+                          }}>
+                              {/* 1. 序列展示区 - 标题 */}
+                              <div style={{ fontWeight: 'bold', marginBottom: 4, color: '#666' }}>
+                                Original Sequence #{index + 1}:
+                              </div>
+                              <div style={{ 
+                                whiteSpace: 'nowrap', 
+                                overflowX: 'auto', 
+                                backgroundColor: '#f5f5f5', 
+                                padding: '8px', 
+                                borderRadius: '4px',
+                                fontFamily: 'monospace',
+                                marginBottom: 12 
+                              }}>
+                                {result.original_seq ?? '?'}
+                              </div>
+
+                              {/* 2. 详情表格区 */}
+                              <div style={{ marginBottom: 12 }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                  <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+                                    <tr style={{ borderBottom: '2px solid #eee' }}>
+                                      <th style={{ padding: '4px' }}>Pos</th>
+                                      <th style={{ padding: '4px' }}>Type</th>
+                                      <th style={{ padding: '4px' }}>Base</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {result.details?.map(([pos, type, base], i) => (
+                                      <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                                        <td style={{ padding: '4px' }}>{pos}</td>
+                                        <td style={{ padding: '4px' }}>{des_list[type-1]}</td>
+                                        <td style={{ padding: '4px', fontWeight: 'bold' }}>{base}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+
+                              {/* 3. Motif 图片展示区 */}
+                              {result.image && (
+                                <div style={{ marginTop: 12, textAlign: 'center' }}>
+                                  <div style={{ fontWeight: 'bold', marginBottom: 8, textAlign: 'left', color: '#666' }}>
+                                    Motif Visualization:
+                                  </div>
+                                  <img
+                                    style={{ 
+                                      maxWidth: '100%', 
+                                      borderRadius: '4px',
+                                      border: '1px solid #f0f0f0'
+                                    }}
+                                    src={`data:image/svg+xml;base64,${result.image}`}
+                                    alt={`motif-${index}`}
+                                  />
+                                </div>
+                              )}
+                            </div>
                           ))
-    
-    
-                        )
-                      }
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* 图片展示区域 */}
-                <div style={{
-                  flex: '1',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: '#fff',
-                  borderRadius: '5px',
-                  border: '1px solid #eee',
-                  padding: '10px'
-                }}>
-                  <div style={{
-                    textAlign: 'center',
-                    color: '#666'
-                  }}>
-                    <ImageWithZoom src={"data:image/png;base64,"+image}></ImageWithZoom>
-                    <p>motif</p>
+                        }
                   </div>
-                </div>
 
 
-              </div>
-        </>
-        
-        :
-        //数据不顺利
-        <>
-        
-          {/* 第一行：任务信息 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '20px',
-            paddingBottom: '10px',
-            borderBottom: '1px solid #ddd'
-          }}>
-            <span>Task Start Time: {startTime}</span>
-            <span>Task ID: {content.taskid}</span>
-            <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>State: Error</span>
-          </div>
-        </>
-        }
-    </div>
-  );
-};
-const ImageWithZoom = ({ src, alt = "", width = "90%", height = "auto" }) => {
-  const [isZoomed, setIsZoomed] = useState(false);
 
-  const toggleZoom = () => setIsZoomed(!isZoomed);
-
-  return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
-      {/* 原始图片 */}
-      <img
-        src={src}
-        alt={alt}
-        style={{
-          width: width,
-          height: height,
-          cursor: 'pointer',
-          borderRadius: '4px',
-          transition: 'transform 0.2s',
-          ':hover': {
-            transform: 'scale(1.02)'
-          }
-        }}
-        onClick={toggleZoom}
-      />
-      
-      {/* 放大按钮（右上角） */}
-      <button
-        onClick={toggleZoom}
-        style={{
-          position: 'absolute',
-          top: '8px',
-          right: '8px',
-          background: 'rgba(0,0,0,0.6)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '50%',
-          width: '24px',
-          height: '24px',
-          fontSize: '14px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 0,
-          ':hover': {
-            background: 'rgba(0,0,0,0.8)'
-          }
-        }}
-      >
-        +
-      </button>
-      
-      {/* 放大浮窗 */}
-      {isZoomed && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            cursor: 'zoom-out',
-          }}
-          onClick={toggleZoom}
-        >
-          <img
-            src={src}
-            alt={alt}
-            style={{
-              width: '80vw',
-              height: '60vh',
-              objectFit: 'contain',
-              boxShadow: '0 0 20px rgba(0,0,0,0.5)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          
-          {/* 关闭按钮 */}
-          <button
-            onClick={toggleZoom}
-            style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              fontSize: '24px',
-              cursor: 'pointer',
-              ':hover': {
-                background: 'rgba(255,255,255,0.3)'
-              }
-            }}
-          >
-            ×
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
-
+      }
+    })
+    } catch (error) {
+      results=[{
+      key: '1',
+      label: 'There some errors in server,please contach us or send the email to xarnudvilas@gmail.com',
+      children: <p>{"错误"}</p>,
+    }]
+    }
+    
+    return results;
+}
 
 function Tasks() {
+  const [res,setRes]=useState({})
   const [tasks, setTasks] = useState([])
+  const { showToast } = useToast();
+
+  //来点组件状态
+  const [items, setItems] = useState([])
+
+  const onChange = key => {
+    console.log(key);
+  };
   useEffect(()=>{
     return () => {
-      
+      // setRes(client.queryTasks(RequestBuilder.querytasks()))
     };
 
   },[])
@@ -358,43 +142,34 @@ function Tasks() {
           <button 
             style={{margin:"10px",height:"50px",width:"400px",borderRadius:"5px", border:"none",backgroundColor:"#4CAF50",color:"white",fontSize:"20px",fontWeight:"bold"}}
             onClick={()=>{
-                fetch('https://inner.wei-group.net/vqrna/api/req', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({type:"user_tasks", email:state.getUser()})  // 转换为 JSON 字符串
+              showToast({ type: 'success', message: 'You had submitted requesting, please wait and don`t repeat. ' });
+              client
+                .queryTasks(RequestBuilder.querytasks())
+                .then(res => {
+                  console.log(res)
+                  showToast({ type: 'success', message: 'Tasks are retrieved successfully !. ' });
+                  let item_arr=[]
+                  if(res.tasks)item_arr=convert_tasks_to_items(res.tasks)
+                  setItems(item_arr)
+
+                  /*
+                  # 任务结构如下图所示
+                  results : [{…}]
+                  taskID :  "d338ca44-0b25-472f-907a-2d9c7ab81ef6"
+                  timestamp :  "1768063182285"
+                  userID : "4f7c533e-6c21-48ce-9c54-e85182495f86"
+                  */
                 })
-                .then(response => response.text())  // 获取响应体
-                .then(data=>{
-                  console.log(JSON.parse(data).tasks)
-                  setTasks(JSON.parse(data).tasks);
-                })  // 获取响应体
-                .catch(error => {
-                  console.error('Error:', error);
-                });
-              
-              
+                .catch(err => {
+                  showToast({ type: 'error', message: 'Please try again !' });
+                  console.error("请求失败：", err)
+                })
+
               }}> 
-              Click This To Get My Tasks
+            Click This To Get My Tasks
           </button>
           <Block title="Tasks">
-              <Collapse defaultActiveKey={['0']} onChange={()=>{}}>
-                {tasks.map((item,index)=>{
-                  return (<Panel header={<div style={{display:"flex", alignItems:"center"}}>
-                                            <div>{item.startTime} </div> 
-                                            <div style={type_map[item.state]}>
-                                              {item.state}
-                                            </div>
-                                         </div>} 
-                                 key={index}>
-                                <div>
-                                  <MethylationDisplay data={item}/>
-                                </div> 
-                          </Panel>)
-                })}
-            </Collapse>
-            
+              <Collapse items={items} defaultActiveKey={['1']} onChange={onChange} />
           </Block>
 
       </div >

@@ -35,13 +35,7 @@ function Home1() {
                           <BulbOutlined className="icon-item" style={{color:"#F2EFEA"}}/>
                       </div>
 
-                      <div className="item-flex">
-                          <div>
-                              <h3> · Biologically meaningful interpretability:</h3>
-                              <p>  VQ-RNA can identify informative motif patterns and construct an interpretable feature spectrum for each type of RNA modification.</p>
-                          </div>
-                          <DeploymentUnitOutlined className="icon-item" style={{color:"#FC7753"}}/>
-                      </div>
+                      
 
 
 
@@ -77,6 +71,17 @@ function Home1() {
                         </button>
                     </div>
                     <div className="item item2">
+
+                        <div className="item-flex">
+                            <DeploymentUnitOutlined className="icon-item" style={{color:"#FC7753"}}/>
+                          <div>
+                              <h3> · Biologically meaningful interpretability:</h3>
+                              <p>  VQ-RNA can identify informative motif patterns and construct an interpretable feature spectrum for each type of RNA modification.</p>
+                          </div>
+                          
+                      </div>
+                        {/*
+                        虚假的端到端
                         <div className="item-flex">
                             <PieChartFilled className="icon-item" style={{color:"#66D7D1"}}/>
                             <div>
@@ -85,6 +90,7 @@ function Home1() {
                             </div>
                            
                         </div>
+                        */}
                         <div className="item-flex">
                             <SlidersFilled className="icon-item" style={{color:"#DBD56E"}}/>
                             <div>

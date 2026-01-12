@@ -2,8 +2,6 @@ import axios from "axios"
 //发送post请求的方法
 async function simplePost(data) {
     try {
-      //const response = await axios.post('http://8.130.10.95/api/req', data);
-      //return response.data;
       const postData = data;
   
       // 使用 fetch 发送 POST 请求到 /api/req

@@ -25,7 +25,7 @@ function Header() {
     {
       key: '1',
       label: (
-        <div style={{fontSize:"14px",width:"100px"}} onClick={()=>{alert("user:"+state.getUser())}}>
+        <div style={{fontSize:"14px",width:"100px"}} onClick={()=>{alert("用户信息内测中，敬请期待")}}>
           Personal Info
         </div>
       ),
@@ -55,9 +55,12 @@ function Header() {
                 <div  style={{fontWeight:"bold",fontSize:"30px"}}  >VQ-RNA</div>
                 <div  onClick={()=>navi("/home")}  style={{marginLeft:"20px"}}><HomeOutlined style={{padding:"3px"}}/>Home</div>
                 <div  onClick={()=>navi("/usage")} style={{marginLeft:"20px"}}><AppstoreOutlined style={{padding:"3px"}}/>Usage</div>
-                <div  onClick={()=>{navi("/tasks"); }} style={{marginLeft:"20px"}}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
+               
+                <div  onClick={()=>navi("/tasks")} style={{marginLeft:"20px"}}><CloudServerOutlined style={{padding:"3px"}}/>Tasks</div>
                 <div  onClick={()=>navi("/reference")} style={{marginLeft:"20px"}}><FileSearchOutlined style={{padding:"3px"}}/>Reference</div>
                 <div  onClick={()=>navi("/about")} style={{marginLeft:"20px"}}><ContactsOutlined style={{padding:"3px"}}/>About</div>
+
+                
             </div>
             {/*右侧的用户登录信息以及界面*/}
             <div id="author" style={{display: 'flex',paddingRight: '20px',fontSize: '30px',alignItems: 'center',cursor: 'pointer'}}>

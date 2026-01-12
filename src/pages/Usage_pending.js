@@ -10,9 +10,15 @@ import { useState } from "react";
 import state from "../tools/state";
 import { useRef } from "react";
 import { useToast } from "../App";
+import {RequestObjectBuilder} from "../tools/Request"
+import { RequestClient } from "../tools/Http";
+import { example } from "../tools/example";
+import { server_path } from "../configure";
 const { Dragger } = Upload;
+const RequestBuilder=new RequestObjectBuilder();   //生成请求构建对象
+const client=new RequestClient(server_path)
 
-
+const example_base64=example
 
 //文件的上传逻辑都写到这里了, 这个是一个antd封装好的方法, 具体查看ai或者文档
 const props = {
@@ -41,7 +47,41 @@ const input_block2={
   alignItems:"center",
 }
 
-// 上传文件
+// Fasta Base64文件的处理方法
+
+//切掉前缀
+function stripBase64Prefix(str) {
+  return str.includes(",") ? str.split(",")[1] : str;
+}
+
+function base64ToText(b64) {
+  return decodeURIComponent(escape(atob(b64)));
+}
+
+function parseFasta(fastaText) {
+  const sequences = [];
+  let current = null;
+
+  fastaText.split(/\r?\n/).forEach(line => {
+    line = line.trim();
+    if (!line) return;
+
+    if (line.startsWith(">")) {
+      if (current) sequences.push(current);
+      current = {
+        header: line.substring(1),
+        sequence: ""
+      };
+    } else {
+      current.sequence += line;
+    }
+  });
+
+  if (current) sequences.push(current);
+  return sequences;
+}
+
+
 
 
 
@@ -49,133 +89,141 @@ const input_block2={
 const des_list=["Am", "Cm", "Gm", "Um", "m1A", "m5C", "m5U", "m6A", "m6Am", "Ψ"]
 //多选框
 
-function Usage() {
-  const [des0,setDes0]=useState(0);
-  const [des1,setDes1]=useState(0);
-  const [des2,setDes2]=useState(0);
-  const [des3,setDes3]=useState(0);
-  const [des4,setDes4]=useState(0);
-  const [des5,setDes5]=useState(0);
-  const [des6,setDes6]=useState(0);
-  const [des7,setDes7]=useState(0);
-  const [des8,setDes8]=useState(0);
-  const [des9,setDes9]=useState(0);
-  const [display,setDisplay]=useState(false);
-  const [email,setEmail]=useState("");
+function Usage_pending() {
 
-  // 这个是关于email的内容
-  const [inputValue, setInputValue] = useState(""); // 定义一个状态变量 inputValue 和对应的更新函数 setInputValue
-  const handle = (e) => {
-      setInputValue(e.target.value);
-    };
+  //设置修饰状态，这个将会决定我们调用何种修饰内容，因此首先是一个状态，其次是一个方法
+  const [motifs,setMotifs]=useState([0,0,0,0,0,0,0,0,0,0])
+  const changeMotifs=(index)=>{
+    const arr=[...motifs]
+    if(arr[index]==0) arr[index]=1;
+    else arr[index]=0;
+    setMotifs(arr);
+  }
+
+  //文件名称
+  const [filename,setFilename]=useState("unuploded")
 
   //选择某种模式作为提交方案
   const [subModel,setSubModel]=useState(0); //0代表选择左侧的单序列提交, 1代表选择右侧的多序列提交
 
-
-  const getDes=()=>{
-    let dess=[];
-    for(let i=0;i<10;i++){
-      const temp=eval('des'+i);
-      dess.push(temp);
-    }
-    return dess;
-  }
   const select=(index)=>{
-    const temp=eval('des'+index);
-    const setTemp=eval('setDes'+index);
-    setTemp(temp==1?0:1);
-    
+    changeMotifs(index)
   }
   const selectAll=()=>{
-    for(let i=0;i<10;i++){
-      eval('setDes'+i+"(1)")
-    }
-
+    console.log(motifs)
+    setMotifs([1,1,1,1,1,1,1,1,1,1]);
   }
-  //文件上传
+  const unSelectAll=()=>{
+    console.log(motifs)
+    setMotifs([0,0,0,0,0,0,0,0,0,0]);
+  }
+
+
+  //我们的目标内容
   const [seq,setSeq]=useState('');
   const [base64String, setBase64String] = useState('');
 
+  //上传文件，但是这里能做到的防护为：检查文件是否为空，检查文件是否为fasta结尾，文件加载错误
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+    console.log("上传文件名称为",file.name)
 
+
+    //如果文件不存在
+    if (!file) return;
+    //如果文件后缀不是fasta
+    if(!file.name.endsWith(".fasta")) {
+      alert("Please upload a appropriate fasta file")
+      return;
+    }
     const reader = new FileReader();
-    
+    //正常的上传逻辑
     reader.onload = (e) => {
+      console.log(e)
       const base64 = e.target.result;
       setBase64String(base64);
+      setFilename(file.name)
       console.log('Base64:', base64.slice(0, 100) + '...'); // 打印前100字符
     };
-
+    //文件读取错误
     reader.onerror = (error) => {
       console.error('文件读取错误:', error);
     };
 
     reader.readAsDataURL(file); // 关键方法
   };
+
+  //设置输入的文件内容
   const handleChange = (e) => {
     setSeq(e.target.value);
   };
 
-  //管理提交方式:
+  //提交单一的内容
   const submitSingle=()=>{
-    const temp={
-      type:"seq",
-      body:seq,
-      email:state.getUser(),
-    }
-    fetch('https://inner.wei-group.net/vqrna/api/req', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(temp)  // 转换为 JSON 字符串
+    const message=RequestBuilder.seq([seq],motifs)
+    console.log(message)
+    //发送请求
+    client.submitSeq(message).then((value)=>{
+      showToast({ type: 'success', message: 'Your task has been finish successfully! You can check the result in the "My Tasks" section. ' });
+      console.log(value)
+    }).catch((reason)=>{
+      showToast({ type: 'error', message: 'Some Network breaking! Please try again. ' });
+      console.log(reason)
     })
-    .catch(error => {
-      console.error('Error:', error);
-    });
 
   }
-  const submitFasta=()=>{
-    console.log("上传的文件",base64String);
-    const temp={
-      type:"file",
-      body:base64String.split(',')[1], // "ABC123...",
-      email:state.getUser(),
-    }
-    fetch('https://inner.wei-group.net/vqrna/api/req', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(temp)  // 转换为 JSON 字符串
+  //提交fasta文件
+  const submitFasta=(e)=>{
+    const cleanedFasta=stripBase64Prefix(base64String)
+    const fastaText = base64ToText(cleanedFasta);
+    const records = parseFasta(fastaText);
+    const seqs=records.map(item=>item.sequence)
+
+    console.log(records[0].sequence);
+    // "AUGCUAGCUAGCUAGC..."
+
+    const message=RequestBuilder.fasta(seqs,motifs)
+    console.log(message)
+    //发送请求
+    client.submitFasta(message).then((value)=>{
+      showToast({ type: 'success', message: 'Your task has been finish successfully! You can check the result in the "My Tasks" section. ' });
+      console.log(value)
+    }).catch((reason)=>{
+      showToast({ type: 'error', message: 'Some Network breaking! Please try again. ' });
+      console.log(reason)
     })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-    
   }
+
+  //点击提交的内容
   const submit=()=>{
-    console.log("内容",state.getUser())
-    if(subModel==0){
+
+    //首先提示内容，提交成功/失败
+    //然后进行查询
+    if(motifs.includes(1)==false){
+      showToast({ type: 'error', message: 'Please select at least one modification type ' });
+      return;
+    }
+    else if(subModel==0 && seq!=''){ //上传单一序列，并且不为空
+      showToast({ type: 'success', message: 'Your task has been submitted a single sequence successfully! You can check the result in the "My Tasks" section. ' });
       submitSingle();
     }
-    else if(subModel==1){
+    else if(subModel==1 && base64String!=''){ //上传整个文件的内容，让后端自己处理
+      showToast({ type: 'success', message: 'Your task has been submitted a fasta file successfully! You can check the result in the "My Tasks" section. ' });
       submitFasta();
     }
     else{
+      showToast({ type: 'error', message: 'Please input or upload as correct format ' });
       console.log("没有对应的提交方式")
     }
 
   }
 
   const { showToast } = useToast();
-  const handleClick = () => {
-    showToast({ type: 'success', message: '操作成功！' });
-  };
 
+  //一个暂时可能用不上的方法
+  //const handleClick = () => { showToast({ type: 'success', message: '操作成功！' }); };
+
+  //检查序列是否可靠（单纯检查序列内容）
   const checkFormat=()=>{
     if (!seq) {
       showToast({ type: 'error', message: 'Please input your sequence' });
@@ -200,15 +248,16 @@ function Usage() {
     showToast({ type: 'success', message: "Format is correct!" });
     return true;
   }
-
+  //提交方法，主要是提示正常内容
   const Submitted=()=>{
     showToast({ type: 'success', message: 'Your task has been submitted successfully! You can check the result in the "My Tasks" section. ' });
   }
-
+  //界面的具体情况和逻辑
     return (
       <div className="page" >
           <Block title="Input target sequences" icon={<TagFilled style={{color:"white",fontSize:"20px",margin:5}}/>}>
-            <div style={{display:"flex", justifyContent:"center", alignItems:"center",width:"90%", height:"100%"}}>
+            <div style={{display:"flex", justifyContent:"center", alignItems:"center",width:"100%", height:"100%"}}>
+              {/*左侧的栏目，直接输入序列*/}
               <div style={input_block} className={subModel==1?"unUse":""}
               onClick={()=>setSubModel(0)} >
                 <div style={{fontSize:"20px",margin:"5px 0"}}>Enter the sequence with FASTA format:</div>
@@ -226,6 +275,7 @@ function Usage() {
                   <button  style={{margin:10, border:"none", padding:"5px", backgroundColor:"transparent", fontSize:"20px", borderBottom:"solid 1px"}} onClick={(e)=>{setSeq("ACTGTCATGACTAGCATGACTAGCATGATCATGACTACGATCAACTGTCATGACTAGCATGACTAGCATGATCATGACTACGATCA");console.log(seq)}}>example</button>
                 </div>
               </div>
+              {/*右侧的栏目，需要上传文件*/}
               <div style={input_block2} className={subModel==0?"unUse":""} onClick={()=>{setSubModel(1);}}>
                 <div style={{margin:"5px 0"}}>Or upload your data file:</div>
                 
@@ -243,6 +293,7 @@ function Usage() {
                           <div class="custom-upload">
                             <input type="file" id="fileInput" onChange={handleFileChange}/>
                             <label for="fileInput" class="upload-btn"> Upload </label>
+                              
                           </div>
                   }
                   
@@ -250,22 +301,45 @@ function Usage() {
                   
 
                   <div class="file-info" id="fileInfo">
-                    <div class="file-name" id="fileName">{base64String!=''?"uploaded!":"unselect"}</div>
+                    <div class="file-name" id="fileName">{base64String!=''?"uploaded!:"+filename:"unselect"}</div>
                   </div>
+                  <button  style={{margin:10, border:"none", padding:"5px", backgroundColor:"transparent", fontSize:"20px", borderBottom:"solid 1px"}} 
+                                  onClick={
+                                    (e)=>{
+                                      //直接设置example即可
+                                      setBase64String(example)
+                                      setFilename("example.faste")
+
+                                    }
+                                    }>
+                                  example
+                              </button>
 
                 </div>
     
               </div>
             </div>
           </Block>
-          <Block title="Select motify type" >
+          <Block title="Select motify type and Submission" >
             <div style={{display:"flex", flexDirection:"column",justifyContent:"center", alignItems:"center",width:"100%", height:"100%"}}>
               <div style={{margin:"10px 0"}}>
-                {des_list.map((item,index)=><Checkbox checked={eval('des'+index)} disabled={display} style={{fontSize:"16px", fontWeight:"bold",margin:"0 10px"}} onChange={()=>select(index)}>{item}</Checkbox>)}
+                {des_list.map(
+                  (item,index)=>
+                    <Checkbox checked={motifs[index]} 
+                      style={{fontSize:"16px", fontWeight:"bold",margin:"0 10px"}} 
+                      onChange={()=>select(index)}>{item}
+                    </Checkbox>
+                )}
               </div>
               <div>
-                 <button onClick={()=>selectAll()} style={{backgroundColor:"#FFA5EE", height:"30px", width:"150px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}}>
+                <button onClick={()=>selectAll()} style={{backgroundColor:"#FFA5EE", height:"30px", width:"150px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}}>
                   Select All
+                </button>
+                <button onClick={()=>unSelectAll()} style={{backgroundColor:"#11B56E", height:"30px", width:"150px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}}>
+                  Clear
+                </button>
+                <button style={{backgroundColor:"#FFA500", height:"30px", width:"90px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}} onClick={()=>{submit()}}>
+                  submit
                 </button>
 
               </div>
@@ -273,16 +347,18 @@ function Usage() {
             </div>
 
           </Block>
+          {/*
           <Block title="Submission">
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
               <input placeholder="Input your email" onChange={handle} style={{width:"100%", height:"50px", fontSize:"20px", margin:"10px", border:"solid gray 1px", paddingLeft:"10px", borderRadius:"10px",color:" rgba(0, 0, 0, 0.9)"}}/>
-              <button style={{backgroundColor:"#FFA500", height:"30px", width:"90px", margin:"0 20px", border:"none", borderRadius:"5px", color:"white", fontSize:"20px"}} onClick={()=>{Submitted();submit()}}>submit</button>
+              
                
             </div>
           </Block>
+          */}
 
       </div>
     );
   }
   
-  export default Usage;
+  export default Usage_pending;

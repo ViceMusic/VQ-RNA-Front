@@ -23,3 +23,50 @@
 .placeholder{
     height: 50px;
 }
+
+
+
+/* 基础容器样式 */
+.toast-container {
+    width: 900px;
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 1100;
+}
+
+/* 气泡通用样式 */
+.toast-success, 
+.toast-error, 
+.toast-warning {
+  padding: 12px 20px;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  color: white;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+/* 成功样式 */
+.toast-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+/* 错误样式 */
+.toast-error {
+  background: linear-gradient(135deg, #dc3545, #bd2130);
+}
+
+/* 警告样式 */
+.toast-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #343a40;
+}
+
+/* 进场动画 */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

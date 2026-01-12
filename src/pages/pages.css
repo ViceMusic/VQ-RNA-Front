@@ -295,7 +295,7 @@ img{
 
   /* 上传容器 */
   .upload-container {
-    width: 300px;
+    width: 80%;
     background: white;
     padding: 30px;
     border-radius: 10px;
